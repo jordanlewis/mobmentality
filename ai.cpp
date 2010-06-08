@@ -39,21 +39,3 @@ SteerInfo Seek::getSteering()
     s.rot = 0;
     return s;
 }
-
-SteeringController::SteeringController(PSteerable *steerable)
-    : steerable(steerable)
-{}
-
-AIController::AIController(PSteerable *steerable) : SteeringController(steerable)
-{}
-
-void AIController::setStrategy(AIStrategy *strategy)
-{
-    this->strategy = strategy;
-    this->strategy->steerable = steerable;
-}
-
-void AIController::steer()
-{
-    steerable->setSteering(strategy->getSteering());
-}
