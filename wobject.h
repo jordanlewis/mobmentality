@@ -5,16 +5,14 @@
 
 class PObject;
 class GObject;
-class Agent;
 
 class WorldObject
 {
   public:
-    WorldObject(PObject *pobject, GObject *gobject, Agent *agent);
+    WorldObject(PObject *pobject, GObject *gobject);
 
     PObject *pobject;
     GObject *gobject;
-    Agent *agent;
 
     void getQuat(Quatf_t quat);
     Vec3f getPos();

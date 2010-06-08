@@ -1,7 +1,8 @@
 #ifndef AI_H
 #define AI_H
 
-#include "agent.h"
+#include "kinematic.h"
+#include "steering.h"
 
 class PSteerable;
 

@@ -19,7 +19,7 @@ int main(int argc, char **argv)
     PlaneInfo info = PlaneInfo(0, 1, 0, -5);
     PObject *pobj = new PObject(&info);
     GObject *gobj = new GObject(&info);
-    WorldObject *wobj = new WorldObject(pobj, gobj, NULL);
+    WorldObject *wobj = new WorldObject(pobj, gobj);
     world.addObject(wobj);
 
     BoxInfo box = BoxInfo(1,1,1);
@@ -27,7 +27,7 @@ int main(int argc, char **argv)
     SteerInfo s = SteerInfo(Vec3f(1, 0, 0));
     PSteerable *psteer = new PSteerable(s, k, 100.0f, &box);
     gobj = new GObject(&box);
-    wobj = new WorldObject (psteer, gobj, NULL);
+    wobj = new WorldObject (psteer, gobj);
     world.addObject(wobj);
 
     AIController aic = AIController(psteer);
@@ -43,7 +43,6 @@ int main(int argc, char **argv)
     {
         now = GetTime();
         input.processInput();
-        aic.steer();
         physics.simulate(now - last);
         graphics.render();
         last = now;

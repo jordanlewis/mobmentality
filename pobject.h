@@ -1,7 +1,8 @@
 #ifndef POBJECT_H
 #define POBJECT_H
 #include <ode/ode.h>
-#include "agent.h"
+#include "kinematic.h"
+#include "steering.h"
 #include "vec3f.h"
 #include "quat.h"
 
