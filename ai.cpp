@@ -18,6 +18,18 @@ SteerInfo Seek::getSteering()
 
     const Kinematic &k = steerable->getKinematic();
     Vec3f dir;
+
+    if (abs(target.pos.x - k.pos.x) > World::size)
+    {
+        target.pos.x += 2 * World::size * (k.pos.x > 0 ? 1 : -1);
+    }
+    if (abs(target.pos.z - k.pos.z) > World::size)
+    {
+        target.pos.z += 2 * World::size * (k.pos.z > 0 ? 1 : -1);
+    }
+
+
+
     if (!flee)
         dir = target.pos - k.pos;
     else
@@ -25,7 +37,6 @@ SteerInfo Seek::getSteering()
 
     Vec3f targetVelocity;
     float targetSpeed;
-    float maxSpeed = 50;
     float distance = dir.length();
     dir.normalize();
 
@@ -120,14 +131,14 @@ SteerInfo Flock::getSteering()
      * velocity and alignment*/
     if (cohesionCnt)
     {
-        seeker.target = cohesionVel;
+        seeker.target.pos = cohesionVel;
         seeker.flee = false;
         s = seeker.getSteering();
     }
 
     if (separationCnt)
     {
-        seeker.target = separationVel;
+        seeker.target.pos = separationVel;
         seeker.flee = true;
         f = seeker.getSteering();
     }
@@ -144,14 +155,14 @@ SteerInfo Flock::getSteering()
     wanderer.rate = 1;
     wanderer.radius = 3;
     wanderer.offset = 5;
-    wanderer.seeker.maxSpeed = 30;
+    wanderer.seeker.maxSpeed = 100;
     SteerInfo w = wanderer.getSteering();
 
-    s.acc *= 2;
-    s.acc += 2 * f.acc;
-    s.acc += 3 * a.acc;
+    s.acc *= 1;
+    s.acc += 1 * f.acc;
+    s.acc += 2 * a.acc;
     s.acc += 1 * w.acc;
-    s.acc /= 8;
+    s.acc /= 5;
 
 
     return s;
@@ -190,20 +201,58 @@ SteerInfo FollowLeader::getSteering()
     SteerInfo s, l;
     if (separationCnt)
     {
-        seeker.target = separationVec;
+        seeker.target.pos = separationVec;
         seeker.flee = true;
-        seeker.maxSpeed = 100;
+        seeker.maxSpeed = 30;
         l = seeker.getSteering();
     }
 
     Vec3f leaderpos = leader->getKinematic().pos;
     seeker.flee = false;
     seeker.slowRadius = 5;
-    seeker.target = leaderpos;
+    seeker.target.pos = leaderpos;
     s = seeker.getSteering();
 
     s.acc += l.acc;
     s.acc /= 2;
 
     return s;
+}
+
+StaticFormation::StaticFormation(PSteerable *leader, int slot)
+    : FollowLeader(leader), slot(slot)
+{}
+
+SteerInfo StaticFormation::getSteering()
+{
+    seeker.steerable = steerable;
+    seeker.target = getSpot();
+    seeker.maxSpeed = 30;
+    seeker.slowRadius = 2;
+    seeker.targetRadius = 0;
+    return seeker.getSteering();
+}
+
+Line::Line(PSteerable *leader, int slot) : StaticFormation(leader, slot)
+{}
+
+Kinematic Line::getSpot()
+{
+    const Kinematic &k = leader->getKinematic();
+    Kinematic ret;
+    ret.pos = k.pos + k.vel.perp(Vec3f(0,1,0)).unit() * slot * (slot % 2 ? -1 : 1);
+    return ret;
+}
+
+Vee::Vee(PSteerable *leader, int slot) : StaticFormation(leader, slot)
+{
+}
+
+Kinematic Vee::getSpot()
+{
+    const Kinematic &k = leader->getKinematic();
+    Kinematic ret;
+    ret.pos = k.pos + slot * 
+        (k.vel.perp(Vec3f(0,1,0)).unit() * (slot % 2 ? -1 : 1) - k.vel.unit());
+    return ret;
 }

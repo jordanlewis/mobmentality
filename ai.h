@@ -24,7 +24,7 @@ class Seek : public AIStrategy
     float maxSpeed;
     bool flee;
 
-    SteerInfo getSteering();
+    virtual SteerInfo getSteering();
 };
 
 class Wander : public AIStrategy
@@ -37,7 +37,7 @@ class Wander : public AIStrategy
     float rate;
 
     Wander();
-    SteerInfo getSteering();
+    virtual SteerInfo getSteering();
 };
 
 class Flock : public AIStrategy
@@ -47,16 +47,43 @@ class Flock : public AIStrategy
   public:
     Flock();
 
-    SteerInfo getSteering();
+    virtual SteerInfo getSteering();
 };
 
 class FollowLeader : public AIStrategy
 {
+  protected:
     Seek seeker;
     PSteerable *leader;
   public:
     FollowLeader(PSteerable *leader);
-    SteerInfo getSteering();
+    virtual SteerInfo getSteering();
+};
+
+class StaticFormation : public FollowLeader
+{
+  protected:
+    int slot;
+    virtual Kinematic getSpot() = 0;
+  public:
+    StaticFormation(PSteerable *leader, int slot);
+    virtual SteerInfo getSteering();
+};
+
+class Line : public StaticFormation
+{
+  protected:
+    virtual Kinematic getSpot();
+  public:
+    Line(PSteerable *leader, int slot);
+};
+
+class Vee : public StaticFormation
+{
+  protected:
+    virtual Kinematic getSpot();
+  public:
+    Vee(PSteerable *leader, int slot);
 };
 
 #endif

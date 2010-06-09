@@ -2,6 +2,7 @@
 #include "wobject.h"
 
 World World::_instance;
+int World::size = 50;
 
 World::World() : done(false)
 {}

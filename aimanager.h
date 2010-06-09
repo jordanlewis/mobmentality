@@ -9,6 +9,8 @@ typedef enum
 {
     FLOCK = 0,
     LEADER,
+    LINE,
+    VEE,
     nBehaviors
 } Behavior_t;
 

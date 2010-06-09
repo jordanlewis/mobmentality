@@ -4,6 +4,7 @@
 #include "physics.h"
 #include "quat.h"
 #include "geominfo.h"
+#include "world.h"
 
 PObject::PObject(GeomInfo *info)
 {
@@ -156,14 +157,15 @@ void PSteerable::resetOdeAngularVelocity()
 
 void PSteerable::prePhysics()
 {
-    if (kinematic.pos.x > 30)
-        kinematic.pos.x = -30;
-    else if (kinematic.pos.x < -30)
-        kinematic.pos.x = 30;
-    if (kinematic.pos.z > 30)
-        kinematic.pos.z = -30;
-    else if (kinematic.pos.z < -30)
-        kinematic.pos.z = 30;
+    int n = World::size;
+    if (kinematic.pos.x > n)
+        kinematic.pos.x = -n;
+    else if (kinematic.pos.x < -n)
+        kinematic.pos.x = n;
+    if (kinematic.pos.z > n)
+        kinematic.pos.z = -n;
+    else if (kinematic.pos.z < -n)
+        kinematic.pos.z = n;
     kinematicToOde();
     steeringToOde();
     PMoveable::prePhysics();

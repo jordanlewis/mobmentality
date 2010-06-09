@@ -13,6 +13,7 @@ class World
   public:
     static World &getInstance() {return _instance;};
 
+    static int size;
     bool done;
     std::vector<WorldObject *> wobjects;
     void addObject(WorldObject *obj);

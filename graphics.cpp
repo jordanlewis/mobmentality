@@ -54,7 +54,7 @@ void Graphics::render()
     gluPerspective((GLdouble) 65, (GLdouble) wres / (GLdouble) hres, 0.1, 1000.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(0, 30, -50,
+    gluLookAt(0, 100, -70,
               0, 0, 0,
               0, 1, 0);
 
@@ -96,10 +96,10 @@ void Graphics::render()
 
     glBegin(GL_QUADS);
     glColor3f(.2,.2,.2);
-    glVertex3f(31,-1,-31);
-    glVertex3f(-31,-1,-31);
-    glVertex3f(-31,-1,31);
-    glVertex3f(31,-1,31);
+    glVertex3f(51,-1,-51);
+    glVertex3f(-51,-1,-51);
+    glVertex3f(-51,-1,51);
+    glVertex3f(51,-1,51);
     glEnd();
 
     SDL_GL_SwapBuffers();

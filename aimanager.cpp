@@ -24,7 +24,7 @@ void AIManager::run()
     }
     for (unsigned int i = 0; i < controllers.size(); i++)
     {
-        AIStrategy *strat;
+        AIStrategy *strat = NULL;
         PSteerable *leader;
         if (nextBehavior)
         {
@@ -36,7 +36,8 @@ void AIManager::run()
                                  strat = new Wander();
                                  reinterpret_cast<Wander *>(strat)->rate = 2;
                                  reinterpret_cast<Wander *>(strat)->offset = 3;
-                                 reinterpret_cast<Wander *>(strat)->radius = 5;
+                                 reinterpret_cast<Wander *>(strat)->radius = 1;
+                                 reinterpret_cast<Wander *>(strat)->seeker.maxSpeed = 20;
                                  leader = controllers[i]->getSteerable();
                              }
                              else
@@ -44,10 +45,21 @@ void AIManager::run()
                                  strat = new FollowLeader(leader);
                              }
                              break;
+                case LINE: if (i == 0)
+                               leader = controllers[i]->getSteerable();
+                           else
+                               strat = new Line(leader, i);
+                           break;
+                case VEE: if (i == 0)
+                              leader = controllers[i]->getSteerable();
+                          else
+                              strat = new Vee(leader, i);
+                          break;
                 default: break;
 
             }
-            controllers[i]->setStrategy(strat);
+            if (strat)
+                controllers[i]->setStrategy(strat);
         }
         controllers[i]->steer();
     }
