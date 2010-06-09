@@ -156,6 +156,15 @@ void PSteerable::resetOdeAngularVelocity()
 
 void PSteerable::prePhysics()
 {
+    if (kinematic.pos.x > 30)
+        kinematic.pos.x = -30;
+    else if (kinematic.pos.x < -30)
+        kinematic.pos.x = 30;
+    if (kinematic.pos.z > 30)
+        kinematic.pos.z = -30;
+    else if (kinematic.pos.z < -30)
+        kinematic.pos.z = 30;
+    kinematicToOde();
     steeringToOde();
     PMoveable::prePhysics();
 }

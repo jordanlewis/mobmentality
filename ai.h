@@ -21,7 +21,41 @@ class Seek : public AIStrategy
 
     float slowRadius;
     float targetRadius;
+    float maxSpeed;
+    bool flee;
 
+    SteerInfo getSteering();
+};
+
+class Wander : public AIStrategy
+{
+    float orientation;
+  public:
+    Seek seeker;
+    float radius;
+    float offset;
+    float rate;
+
+    Wander();
+    SteerInfo getSteering();
+};
+
+class Flock : public AIStrategy
+{
+    Seek seeker;
+    Wander wanderer;
+  public:
+    Flock();
+
+    SteerInfo getSteering();
+};
+
+class FollowLeader : public AIStrategy
+{
+    Seek seeker;
+    PSteerable *leader;
+  public:
+    FollowLeader(PSteerable *leader);
     SteerInfo getSteering();
 };
 

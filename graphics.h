@@ -1,7 +1,10 @@
 #ifndef GRAPHICS_H
 #define GRAPHICS_H
 
+#include "vec3f.h"
+
 class WorldObject;
+class AIController;
 
 class Graphics
 {
@@ -15,6 +18,8 @@ class Graphics
     int wres, hres;
     void render();
     void render(WorldObject *);
+    void render(AIController *);
+    void DrawArrow(Vec3f pos, Vec3f dir);
 
     static Graphics &getInstance() {return _instance;};
 };

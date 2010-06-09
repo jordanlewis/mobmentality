@@ -12,6 +12,7 @@ class SteeringController
     PSteerable *steerable;
   public:
     SteeringController(PSteerable *);
+    PSteerable *getSteerable() {return steerable;}
     virtual void steer() = 0;
 };
 
@@ -22,6 +23,7 @@ class AIController : public SteeringController
   public:
     AIController(PSteerable *);
     void setStrategy(AIStrategy *strategy);
+    AIStrategy *getStrategy() {return strategy;}
 
     void steer();
 };
