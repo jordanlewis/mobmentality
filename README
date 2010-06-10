@@ -1,1 +1,18 @@
-Final project for CMSC 23800 Game Construction
+Final project for CMSC 23800 Game Construction: Group AI behaviors
+
+To run, make &&make make test. You need mostly the same dependencies as for
+z-fight-club's group project, minus OpenAL.
+
+The relevant code is mostly in ai.*, aimanager.*, and controllers.*. A good
+amount of code is reused from the group project, but I had to retool a bunch
+of things to get everything uniform.
+
+
+The world the agents move on is a torus.
+
+Press n while running to cycle between AI behaviors.
+
+1. Flock
+2. Follow-the-leader
+3. Static formation: line
+4. Static formation: vee
