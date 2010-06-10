@@ -1,0 +1,129 @@
+\documentclass{article}
+\usepackage{hyperref}
+\usepackage{listings}
+
+\begin{document}
+
+\title{Multi-agent movement behaviors in game AI}
+\author{Jordan Lewis}
+\maketitle
+
+\begin{abstract}
+A common problem in some games with large numbers of AI agents is encoding
+individual behavior in such a way that a coherent group behavior is also
+formed. For example, a squad of enemy troops might look more realistic moving
+toward the player in a fixed (i.e. triangle) or fluid (i.e. follow a leader)
+formation than simply all trying to run at the player directly. We will explore
+various algorithms and methods for coordinated multi-agent movement in game
+AI. Some of these behaviors will not require inter-agent communication of more
+than just what's knowable from the physics environment, and some will - we will
+also attempt to note the differences in efficacy for these two sorts of
+algorithms.
+\end{abstract}
+
+\section {Introduction}
+This paper attempts to explore a few different group AI behaviors. The paper
+is accompanied by a demo that showcases these behaviors - read the README
+in this directory for more information on how the demo works.
+
+The behaviors we will examine hilight some different key decisions necessary
+when designing a group AI: the choices between centralized and decentralized
+information, and between uniform and nonuniform, behaviors across agents. I
+define a uniform group AI behavior to be running identically across all agents,
+as opposed to a non-uniform behavior which requires different algorithms to be
+run on different agents, for leader behavior for example. I define a centralized
+group AI algorithm as one that allows the agents to share state, as opposed to
+a decentralized algorithm that doesn't allow inter-agent communicaton.
+\section {Behaviors}
+\subsection {Flocking}
+Flocking is one of the most well-known group AI algorithms there is. It was
+created by Craig Reynolds in 1987, for a demo called boids. It's a very simple
+uniform and decentralized algorithm that produces realistic and interesting
+results.
+
+Flocking behavior is created by blending together three steering behaviors based
+on the average behavior of the other agents in neighborhoods of differing size
+around the current agent.
+\begin{enumerate}
+\item Separation ensures that agents don't get too close together, by steering
+away from the average position of the agents in the neighborhood.
+\item Cohesion ensures that agents clump together to form flocks, by steering
+toward the average position of the agents in the neighborhood.
+\item Matching ensures that agent clumps tend to move all together, by steering
+to try to match the average heading and velocity of the agents in the
+neighborhood.
+\end {enumerate}
+
+I used the values 5, 10, and 15 for separation, cohesion, and matching
+respectively for my demo. This produced fairly good results, but typically the
+clumps would tend to lose speed and reach a static equilibrium. I solved this
+by adding a wander behavior with a low weight - this ensures that agents keep
+moving around within their flock, which in turn motivates the flock to move as
+a whole.
+
+I implemented this algorithm with knowledge that the agents would not typically
+be allowed to have - the actual positions, velocities, and orientations of all
+the agents in the simulation. This is an optimization: perhaps the more
+genuine approach would be to have each agent scan its neighborhood with raycasts
+for other agents, and detect their velocity by sampling, but this is
+very computationally intensive and would produce results that were at best as
+interesting as the algorithm that uses global information.
+
+\subsection {Follow the Leader}
+Follow the leader is a very simple non-uniform, decentralized behavior. One
+leader agent wanders around the world, and the other agents attempt to seek to
+the leader's position.
+
+Naively, this algorithm didn't produce very good results. The seek behavior
+resulted in oscillatory behavior where the seekers would continually overshoot
+the leader. This was because the wandering agent's velocity was never nearly
+as high as the seeking agents', due to the random acceleration changes in
+the wander behavior. Secondly, the agents would all ram into each other in a
+mad dash to get to the leader's position.
+
+The overshooting oscillation behavior was solved by using the arrive behavior
+with a large slow-down radius around the leader. This produces smooth results
+that appear as though the agents are trying to follow behind the leader at some
+kind of respectful distance. The collision problem was solved by re-using the
+separation steering algorithm from the flocking behavior.
+
+\subsection {Static Formations}
+Static formations are another kind of non-uniform but decentralized group AI
+behavior. A static formation algorithm simply defines a relative position to
+the leader given an integer spot. This can be used to make simple geometric
+shapes for the agents to attempt to conform to.
+
+I implemented two static formations in the demo: a line of agents abreast of
+the leader, and a flying vee formation. These produce very nice looking results at minimal effort: with a simple inheritance relationship, an AI behavior writer
+literally only has to specify a tiny 'getSpot' function. Here's the function I
+wrote to define the line behavior.
+
+\begin{lstlisting}
+    pos = k.pos + k.vel.perp(Vec3f(0,1,0)).unit() * slot * (slot % 2 ? -1 : 1);
+\end{lstlisting}
+Given a kinematic k with position and velocity information of the leader, we
+define a new position vector that's orthogonal to the leader's velocity vector,
+alternating left and right, and scaled by the current agent's slot.
+
+\subsection {Dynamic Formations}
+Dynamic formations are similar to static formations in intent, but they offer
+more flexibility in terms of managing lots of agents in one formation all at
+onec. Instead of assigning a relative position to an agent based on only its
+slot number, dynamic formations also take into account the number of total
+agents participating in the system. This allows for more interesting resizing or
+changing of the formation. I implemented a simple resizable circle formation
+to demonstrate the dynamic resizability of the algorithm.
+
+\section {Conclusion}
+
+
+\section {Sources}
+\begin{enumerate}
+\item Individual-based models - Craig Reynolds - \url{www.red3d.com/cwr/ibm.html}
+\item Steering behaviors - Craig Reynolds - \url{www.red3d.com/cwr/steer/}
+\item Path planning algorithm of maintaining CGF team formation - Zheng et al. - \url{www.computer.org/portal/web/csdl/doi/10.1109/CSIE.2009.495}
+\item Team AI: probabilistic pathfinding - John et al. - \url{portal.acm.org/citation.cfm?id=1234341.1234372&coll=ACM&dl=ACM&CFID=86476434&CFTOKEN=46450234}
+\item Artificial Intelligence for Games - 2nd Ed - Millington and Funge
+\end{enumerate}
+
+\end{document}

@@ -10,7 +10,8 @@ of things to get everything uniform.
 
 The world the agents move on is a torus.
 
-Press n while running to cycle between AI behaviors.
+Press n while running to cycle between AI behaviors. Press + or - to add
+or remove agents.
 
 1. Flock
 2. Follow-the-leader

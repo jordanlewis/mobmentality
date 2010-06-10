@@ -16,6 +16,8 @@ CPP_SRCS = $(wildcard *.cpp) $(wildcard */*.cpp)
 
 CTAGS = tags
 
+PAPER = paper.pdf
+
 # The strategy here is to build everything into build/$(some_lib_dir)/file.o,
 # hard link that object file to build/file.o, and then link as normal. this will
 # fail if someone tries to make an object file with the same name as one in
@@ -25,7 +27,10 @@ OBJNAMES  = $(C_SRCS:.c=.o) $(CPP_SRCS:.cpp=.o)
 OBJECTBUILDS = $(addprefix $(BUILDDIR)/, $(OBJNAMES))
 OBJECTS = $(addprefix $(BUILDDIR)/, $(notdir $(OBJNAMES))) $(SETUPOBJ)
 
-all: $(BUILDDIR) $(CTAGS) $(TARGET)
+all: $(BUILDDIR) $(CTAGS) $(TARGET) $(PAPER)
+
+paper.pdf:
+	pdflatex paper.tex
 
 $(BUILDDIR):
 	mkdir -p $(BUILDDIR)
