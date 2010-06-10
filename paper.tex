@@ -116,7 +116,54 @@ to demonstrate the dynamic resizability of the algorithm. This is easily
 demonstratable by adding or removing agents while the defensive circle behavior
 is still active.
 
-\section {Conclusion}
+\subsection {Emergent Formations}
+Emergent formations encompass behaviors like flock, whose interesting and
+nuanced behavior emerges from preconditions that alone do not indicate such
+behavior. Another example of an emergent formation is the emergent vee
+behavior from Millington and Funge.
+
+The idea of the emergent vee is that agents try to find other agents that are
+ahead of them, and seek to a target that's behind and to the left or right
+of that agent, depending on whether another agent is already occupying that
+slot. According to the text, this simple steering behavior leads to a
+recursive vee not unlike a sparsely populated binary tree. I wasn't able to
+get this behavior to work, however. The difficulty is that, as the text
+describes, it's hard to prevent agents from fighting over a slot: more often
+than not, agents would simply clump up behind an agent that was once in front.
+I think this could be solved with a more sophisticated geometrical definition of
+where the vee-slots really are in relation to neighbors.
+
+\section {Implementation techniques}
+This project was a joy to implement, partially because of the framework that I
+had been previously working on with the rest of z-fight-club, and partially
+because such AI behaviors easily fall into an object-oriented-style inheritance
+relationship.
+
+Borrowing from the group project, \emph{Steerables} are controlled by
+\emph{AIControllers} using \emph{SteerInfo} structures, which contain an
+acceleration vector and a rotation. For this demo I didn't need to use a
+a separate heading; instead I treated the unitized velocity vector as the
+heading. AIControllers are managed by the \emph{AIManager}, which is in charge
+of changing everyone's strategy when the user requests it.
+
+AIControllers own a pointer to a single \emph{AIStrategy}, which is the top
+of the hierarchy that controls the lion's share of the AI programming. The
+AIStrategy hierarchy follows the "Strategy" design pattern, in that all of its
+subclasses are drop-in replacements for AIControllers' AIStrategy pointers.
+This is accomplished by keeping a uniform API, in which calling getSteering()
+on any AIStrategy will return the SteerInfo structure it requests from the
+steerable character.
+
+Subclasses of AIStrategy implement their own functionality as well. Notably,
+as mentioned above, the \emph{StaticFormation} class makes it easy to define
+a new static formation by simply overriding the getSpot() method.
+
+Finally, the BlendedStrategy subclass implements an interface for weighted
+strategy blending. Children or owners are allowed to add a new SteerInfo output
+structure along with an associated weight to the blend. When getSteering() on
+the BlendedStrategy instance is called, the weighted average of the outputs
+is taken and returned. This makes it easy to implement more complex blends
+of AI behaviors, like in the Flock demo.
 
 
 \section {Sources}
