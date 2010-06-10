@@ -5,11 +5,11 @@
 #include "physics.h"
 #include "pobject.h"
 #include "world.h"
+#include "geominfo.h"
 
 using namespace std;
 
 Physics Physics::_instance;
-
 void QuatfToDQuat(Quatf_t quatf, dQuaternion dquat)
 {
     dquat[1] = quatf[0];
@@ -86,12 +86,24 @@ void Physics::simulate(float dt)
         exit(0);
 }
 
+CollContact::CollContact () : obj(NULL), distance(0),
+                              position(Vec3f(0,0,0)), normal(Vec3f(0,0,0))
+{}
+
 void nearCallback (void *data, dGeomID o1, dGeomID o2)
 {
     Physics &p = Physics::getInstance();
 
     dBodyID b1 = dGeomGetBody(o1);
     dBodyID b2 = dGeomGetBody(o2);
+
+    PObject *p1 = (PObject *)dGeomGetData(o1);
+    PObject *p2 = (PObject *)dGeomGetData(o2);
+
+    if (p2->collType == PHANTOM)
+    {
+        return;
+    }
 
     dContact contact[8];
 
@@ -110,3 +122,18 @@ void nearCallback (void *data, dGeomID o1, dGeomID o2)
         }
     }
 }
+
+void rayCast(const Vec3f *origin, const Vec3f *dir, float len, CollQuery *collQuery)
+{
+    Physics &physics = Physics::getInstance();
+    RayInfo info = RayInfo(len);
+    PObject rayGeom(&info);
+    //dGeomID rayGeom = dCreateRay(physics.getOdeSpace(), ray.len);
+    rayGeom.collType = PHANTOM;
+    dGeomRaySetLength(rayGeom.getGeom(), info.len);
+    dGeomRaySet(rayGeom.getGeom(), (*origin)[0], (*origin)[1], (*origin)[2],
+                (*dir)[0], (*dir)[1], (*dir)[2]);
+    dSpaceCollide2(rayGeom.getGeom(),
+                   (dGeomID)physics.getOdeSpace(), collQuery, &nearCallback);
+}
+

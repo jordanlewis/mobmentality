@@ -3,6 +3,7 @@
 
 #include "kinematic.h"
 #include "steering.h"
+#include "physics.h"
 #include <vector>
 
 class PSteerable;
@@ -57,6 +58,19 @@ class BlendedStrategy : public AIStrategy
     virtual SteerInfo getSteering();
 };
 
+class AvoidObstacles : public AIStrategy
+{
+    Seek seeker;
+    CollContact obstacle;
+  protected:
+    bool wallTrapped;
+    bool seeObstacle;
+  public:
+    void detectWalls();
+    virtual SteerInfo getSteering();
+};
+
+
 class Flock : public BlendedStrategy
 {
     Seek seeker;
@@ -74,6 +88,8 @@ class FollowLeader : public BlendedStrategy
     PSteerable *leader;
   public:
     FollowLeader(PSteerable *leader);
+    void setLeader(PSteerable *leader) {this->leader = leader;};
+    PSteerable *getLeader() {return leader;};
     virtual SteerInfo getSteering();
 };
 
@@ -118,6 +134,13 @@ class DefensiveCircle : public DynamicFormation
     virtual Kinematic getSpot();
   public:
     DefensiveCircle(PSteerable *leader, int slot, int nSlots);
+};
+
+class DynamicVees : public Flock
+{
+    Vee vee;
+  public:
+    virtual SteerInfo getSteering();
 };
 
 #endif

@@ -4,6 +4,7 @@
 #include "vec3f.h"
 #include "world.h"
 #include "steering.h"
+#include "physics.h"
 
 using namespace std;
 
@@ -291,4 +292,106 @@ Kinematic DefensiveCircle::getSpot()
     ret.pos.z = k.pos.z + radius * sin(theta);
 
     return ret;
+}
+
+void AvoidObstacles::detectWalls()
+{
+    Kinematic k = steerable->getKinematic();
+    wallTrapped = false;
+    seeObstacle = false;
+    if (k.vel.length() == 0)
+        return;
+
+    float frontLength = 20; /* How far to cast rays */
+    float diagLength = 1;
+    CollQuery queryl, queryr, query;
+
+    /* ray starts at the front of agent */
+    const Vec3f start = k.pos + k.orientation_v.unit() * (.01 + .3 / 2);
+
+    /* get start points at left and right corners of agent, going out at angle*/
+    Vec3f perp = k.orientation_v.perp(Vec3f(0,1,0));
+    Vec3f startl = start - perp * .5 / 2;
+    Vec3f startr = start + perp * .5 / 2;
+
+    Vec3f langle = slerp(-perp, k.orientation_v, .75);
+    Vec3f rangle = slerp(perp, k.orientation_v, .75);
+
+    /* Cast rays from all three start points */
+    rayCast(&startl, &langle, diagLength, &queryl);
+    rayCast(&startr, &rangle, diagLength, &queryr);
+    rayCast(&start, &k.orientation_v, frontLength, &query);
+
+    CollContact *contact;
+    CollContact *closest = NULL;
+
+    Vec3f pos;
+    float bestDist = 10000;
+
+    /* Check for wall trapped-ness: if 2 out of 3 rays' distance to collision
+     * is close to the same small value, then we're probably directly facing
+     * and stuck against a wall.
+     */
+    CollQuery *q;
+    const Vec3f *s;
+    for (int i = 0; i < 3; i++)
+    {
+        switch (i)
+        {
+            case 0: q = &query;  s = &start;  break;
+            case 1: q = &queryl; s = &startl; break;
+            case 2: q = &queryr; s = &startr; break;
+        }
+        if (q->contacts.size() == 0)
+            continue;
+        contact = &(q->contacts.front());
+
+        if (contact->obj == NULL || contact->obj == steerable->wobject)
+            continue;
+
+        if (!dynamic_cast<PSteerable *>(contact->obj->pobject) && i == 0)
+        {
+            /* Collided with static environment. check normal and distance
+             * to see if we might be stuck. */
+            if (contact->distance < .5 * 2 &&
+                abs(contact->normal.unit().dot(k.orientation_v.unit())) > .9)
+            {
+                seeker.target = contact->position;
+                wallTrapped = true;
+                return;
+            }
+        }
+
+        /* Get closest contact for non-wallstuck cases */
+        if (contact->distance < bestDist)
+        {
+            closest = contact;
+        }
+    }
+    if (closest != NULL)
+    {
+        seeObstacle = true;
+        obstacle.distance = contact->distance;
+        obstacle.normal = contact->normal;
+        obstacle.position = contact->position;
+        obstacle.obj = contact->obj;
+    }
+}
+
+SteerInfo AvoidObstacles::getSteering()
+{
+    detectWalls();
+    SteerInfo s;
+    if (seeObstacle == false)
+        return s;
+
+    /* Determine angle to obstacle. If between 0 and pi/2, turn right. If
+        * between pi/2 and pi, turn left. Else its behind us. */
+    const Kinematic k = steerable->getKinematic();
+
+    seeker.target = obstacle.position;
+    seeker.flee = true;
+
+    return seeker.getSteering();
+
 }

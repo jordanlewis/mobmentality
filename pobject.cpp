@@ -6,7 +6,7 @@
 #include "geominfo.h"
 #include "world.h"
 
-PObject::PObject(GeomInfo *info)
+PObject::PObject(GeomInfo *info) : collType(REAL)
 {
     space = Physics::getInstance().getOdeSpace();
     geom  = info->createGeom(space);

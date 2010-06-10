@@ -9,6 +9,11 @@
 class GeomInfo;
 class WorldObject;
 
+typedef enum {
+    REAL = 0,
+    PHANTOM
+} CollType_t;
+
 class PObject
 {
   protected:
@@ -20,9 +25,14 @@ class PObject
 
     WorldObject *wobject;
 
+    CollType_t collType;
+
+
     bool isPlaceable();
     void getQuat(Quatf_t);
     Vec3f getPos();
+
+    const dGeomID &getGeom() { return geom; };
 
     virtual void prePhysics() {return;};
     virtual void postPhysics() {return;};
