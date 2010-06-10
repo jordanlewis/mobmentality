@@ -26,6 +26,8 @@ void Input::processInput()
                 {
                     case SDLK_q: world.done = true; break;
                     case SDLK_n: aim.nextBehavior = true; break;
+                    case SDLK_EQUALS: aim.spawn = true; break;
+                    case SDLK_MINUS: aim.cull = true; break;
                     default: break;
                 }
                 break;

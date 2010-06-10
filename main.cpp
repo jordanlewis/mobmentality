@@ -25,19 +25,9 @@ int main(int argc, char **argv)
     WorldObject *wobj = new WorldObject(pobj, gobj);
     world.addObject(wobj);
 
-    for (int i = 0; i < 30; i++)
+    for (int i = 0 ; i < 30; i++)
     {
-        BoxInfo box = BoxInfo(.5,.5,.5);
-        Kinematic k = Kinematic(randomVec3f(Vec3f(30, 0, 30)),
-                                randomVec3f(Vec3f(10, 0, 10)));
-        k.pos.y = 1;
-        SteerInfo s = SteerInfo(Vec3f(1, 0, 0));
-        PSteerable *psteer = new PSteerable(s, k, 100.0f, &box);
-        gobj = new GObject(&box);
-        wobj = new WorldObject (psteer, gobj);
-        world.addObject(wobj);
-
-        aim.control(psteer);
+        world.addAgent();
     }
     aim.behavior = (Behavior_t) ((int) nBehaviors - 1);
     aim.nextBehavior = true;
@@ -54,6 +44,7 @@ int main(int argc, char **argv)
         physics.simulate(now - last);
         graphics.render();
         last = now;
+        world.cleanObjects();
         usleep(10000);
     }
 }

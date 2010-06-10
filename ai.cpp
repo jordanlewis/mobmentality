@@ -268,7 +268,27 @@ Kinematic Vee::getSpot()
 {
     const Kinematic &k = leader->getKinematic();
     Kinematic ret;
-    ret.pos = k.pos + slot * 
+    ret.pos = k.pos + slot *
         (k.vel.perp(Vec3f(0,1,0)).unit() * (slot % 2 ? -1 : 1) - k.vel.unit());
+    return ret;
+}
+
+DynamicFormation::DynamicFormation(PSteerable *leader, int slot, int nSlots)
+    : StaticFormation(leader, slot), nSlots(nSlots)
+{}
+
+DefensiveCircle::DefensiveCircle(PSteerable *leader, int slot, int nSlots):
+    DynamicFormation(leader, slot, nSlots)
+{}
+
+Kinematic DefensiveCircle::getSpot()
+{
+    const Kinematic &k = leader->getKinematic();
+    Kinematic ret;
+    float theta = slot * 2 * M_PI / nSlots;
+    float radius = nSlots / M_PI / 2;
+    ret.pos.x = k.pos.x + radius * cos(theta);
+    ret.pos.z = k.pos.z + radius * sin(theta);
+
     return ret;
 }

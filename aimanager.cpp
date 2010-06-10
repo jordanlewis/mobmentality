@@ -1,10 +1,12 @@
 #include "aimanager.h"
 #include "ai.h"
+#include "world.h"
 #include "controllers.h"
 #include "pobject.h"
 AIManager AIManager::_instance;
 
-AIManager::AIManager() : behavior(FLOCK), nextBehavior(false)
+AIManager::AIManager() : behavior(FLOCK), nextBehavior(false), spawn(false),
+                         cull(false)
 {}
 AIManager::~AIManager()
 {}
@@ -18,10 +20,20 @@ AIController *AIManager::control(PSteerable *steerable)
 
 void AIManager::run()
 {
+    World &world = World::getInstance();
     if (nextBehavior)
     {
         behavior = (Behavior_t) ((((int)behavior) + 1) % (int) nBehaviors);
     }
+    if (spawn)
+    {
+        world.addAgent();
+        spawn = false;
+        // just to make it reset everyone's strategy
+        nextBehavior = true;
+    }
+
+
     for (unsigned int i = 0; i < controllers.size(); i++)
     {
         AIStrategy *strat = NULL;
@@ -55,6 +67,12 @@ void AIManager::run()
                           else
                               strat = new Vee(leader, i);
                           break;
+                case CIRCLE: if (i == 0)
+                                 leader = controllers[i]->getSteerable();
+                             else
+                                 strat = new DefensiveCircle(leader, i,
+                                           controllers.size());
+                             break;
                 default: break;
 
             }
@@ -64,4 +82,15 @@ void AIManager::run()
         controllers[i]->steer();
     }
     nextBehavior = false;
+
+    int toCull = 0;
+    if (cull)
+    {
+        toCull = drand48() * controllers.size();
+        if (toCull == 0)
+            toCull = 1;
+        controllers[toCull]->getSteerable()->wobject->alive = false;
+        controllers.erase(controllers.begin() + toCull);
+        cull = false;
+    }
 }

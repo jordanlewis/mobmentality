@@ -14,6 +14,8 @@ class WorldObject
     PObject *pobject;
     GObject *gobject;
 
+    bool alive;
+
     void getQuat(Quatf_t quat);
     Vec3f getPos();
 };

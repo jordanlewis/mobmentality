@@ -17,5 +17,8 @@ class World
     bool done;
     std::vector<WorldObject *> wobjects;
     void addObject(WorldObject *obj);
+    void addAgent();
+
+    void cleanObjects();
 };
 #endif

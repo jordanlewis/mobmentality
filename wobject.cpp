@@ -3,8 +3,11 @@
 #include "gobject.h"
 
 WorldObject::WorldObject(PObject *pobject, GObject *gobject)
-            : pobject(pobject), gobject(gobject)
-{}
+            : pobject(pobject), gobject(gobject), alive(true)
+{
+    if (pobject)
+        pobject->wobject = this;
+}
 
 void WorldObject::getQuat(Quatf_t quat)
 {

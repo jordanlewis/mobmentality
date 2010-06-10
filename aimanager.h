@@ -11,6 +11,7 @@ typedef enum
     LEADER,
     LINE,
     VEE,
+    CIRCLE,
     nBehaviors
 } Behavior_t;
 
@@ -25,6 +26,8 @@ class AIManager
   public:
     Behavior_t behavior;
     bool nextBehavior;
+    bool spawn;
+    bool cull;
     std::vector<AIController *> controllers;
     static AIManager &getInstance() {return _instance;}
     AIController *control(PSteerable *);

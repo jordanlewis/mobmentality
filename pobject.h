@@ -7,6 +7,7 @@
 #include "quat.h"
 
 class GeomInfo;
+class WorldObject;
 
 class PObject
 {
@@ -16,6 +17,8 @@ class PObject
     dSpaceID space;
     PObject(GeomInfo *info);
     ~PObject();
+
+    WorldObject *wobject;
 
     bool isPlaceable();
     void getQuat(Quatf_t);

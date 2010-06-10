@@ -103,4 +103,21 @@ class Vee : public StaticFormation
     Vee(PSteerable *leader, int slot);
 };
 
+class DynamicFormation : public StaticFormation
+{
+  protected:
+    int nSlots;
+    virtual Kinematic getSpot() = 0;
+  public:
+    DynamicFormation(PSteerable *leader, int slot, int nSlots);
+};
+
+class DefensiveCircle : public DynamicFormation
+{
+  protected:
+    virtual Kinematic getSpot();
+  public:
+    DefensiveCircle(PSteerable *leader, int slot, int nSlots);
+};
+
 #endif
