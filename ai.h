@@ -3,6 +3,7 @@
 
 #include "kinematic.h"
 #include "steering.h"
+#include <vector>
 
 class PSteerable;
 
@@ -40,7 +41,23 @@ class Wander : public AIStrategy
     virtual SteerInfo getSteering();
 };
 
-class Flock : public AIStrategy
+class WeightedSteering
+{
+  public:
+    WeightedSteering(SteerInfo s, float weight);
+    SteerInfo steering;
+    float weight;
+};
+
+class BlendedStrategy : public AIStrategy
+{
+  protected:
+    std::vector<WeightedSteering> strats;
+  public:
+    virtual SteerInfo getSteering();
+};
+
+class Flock : public BlendedStrategy
 {
     Seek seeker;
     Wander wanderer;
@@ -50,7 +67,7 @@ class Flock : public AIStrategy
     virtual SteerInfo getSteering();
 };
 
-class FollowLeader : public AIStrategy
+class FollowLeader : public BlendedStrategy
 {
   protected:
     Seek seeker;
